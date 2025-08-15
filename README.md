@@ -16,9 +16,13 @@ beatport-genre <song>
 ## Example
 ### Running:
 ```console
-./beatport-genre.py "Mau P - Gimme That Bounce"
+./beatport-genre.py "Mau P - Gimme That Bounce" -p
 ```
 ### Gives:
 ```
-Genre for 'Mau P - Gimme That Bounce': {'genre': 'Tech House', 'matched_title': 'Gimme That Bounce Original Mix', 'matched_artists': 'Mau P', 'score': 0.794}
+Genre information for: Mau P - Gimme That Bounce
+  Matched Title  : Gimme That Bounce Original Mix
+  Matched Artists: Mau P
+  Genre          : Tech House
+  Match Score    : 0.794
 ```

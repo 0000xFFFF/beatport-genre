@@ -14,6 +14,7 @@ import argparse
 # Argument parsing
 parser = argparse.ArgumentParser(description='get song genre from beatport')
 parser.add_argument('song', type=str, help="song name")
+parser.add_argument('-p', '--pretty', action='store_true', help="Pretty print output with indentation")
 args = parser.parse_args()
 
 def normalize_text(s: str) -> str:
@@ -118,9 +119,15 @@ def get_genre_from_beatport(query: str, timeout: int = 15):
 
 
 if __name__ == "__main__":
-    genre = get_genre_from_beatport(args.song)
-    if genre:
-        print(f"Genre for '{args.song}': {genre}")
+    genre_info = get_genre_from_beatport(args.song)
+    if genre_info:
+        if args.pretty:
+            print(f"Genre information for: {args.song}")
+            print(f"  Matched Title  : {genre_info['matched_title']}")
+            print(f"  Matched Artists: {genre_info['matched_artists'] or 'N/A'}")
+            print(f"  Genre          : {genre_info['genre']}")
+            print(f"  Match Score    : {genre_info['score']}")
+        else:
+            print(f"Genre for '{args.song}': {genre_info}")
     else:
         print(f"Could not find genre for '{args.song}'.")
-
