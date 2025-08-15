@@ -128,6 +128,6 @@ if __name__ == "__main__":
             print(f"  Genre          : {genre_info['genre']}")
             print(f"  Match Score    : {genre_info['score']}")
         else:
-            print(f"Genre for '{args.song}': {genre_info}")
+            print(f"'{args.song}': {genre_info}")
     else:
         print(f"Could not find genre for '{args.song}'.")
