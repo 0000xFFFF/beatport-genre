@@ -1,3 +1,3 @@
-#!/bin/bash -x
+#!/usr/bin/env bash
+set -x
 sudo ln -sfr beatport-genre /usr/local/bin/beatport-genre
-
