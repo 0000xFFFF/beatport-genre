@@ -3,7 +3,7 @@ scrape song genre from beatport
 
 ## Setup
 ```sh
-./setup-env.sh
+./setup-venv.sh
 ./install.sh
 ```
 
