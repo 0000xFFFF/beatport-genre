@@ -16,7 +16,7 @@ beatport-genre <song>
 ## Example
 ### Running:
 ```console
-./beatport-genre.py "Mau P - Gimme That Bounce" -p
+./beatport-genre "Mau P - Gimme That Bounce" -p
 ```
 ### Gives:
 ```
