@@ -35,6 +35,13 @@ def similarity(a: str, b: str) -> float:
 
 def get_genre_from_beatport(query: str, timeout: int = 15):
     options = Options()
+    # added useragent might need to switch to undetected-chromedriver if beatport makes cloudflare harder
+    options.add_argument(
+        "--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/137.0.0.0 Safari/537.36"
+    )
+    
     options.add_argument("--headless=new")
     options.add_argument("--no-sandbox")
     options.add_argument("--disable-dev-shm-usage")
@@ -43,14 +50,12 @@ def get_genre_from_beatport(query: str, timeout: int = 15):
     driver = webdriver.Chrome(options=options)
 
     try:
-        # Build search URL
         q = urllib.parse.quote_plus(query)
         url = f"https://www.beatport.com/search?q={q}"
         driver.get(url)
 
         wait = WebDriverWait(driver, timeout)
 
-        # Wait for rows to appear that match your provided markup
         rows = wait.until(
             EC.presence_of_all_elements_located(
                 (By.CSS_SELECTOR, '[data-testid="tracks-table-row"]')
@@ -60,36 +65,26 @@ def get_genre_from_beatport(query: str, timeout: int = 15):
         candidates = []
         for row in rows:
             try:
-                # --- Title (from the title cell) ---
-                # Anchor in title cell carries the track title in its title attribute.
                 title_a = row.find_element(By.CSS_SELECTOR, 'div.cell.title a[title]')
-                track_title = title_a.get_attribute("title").strip()
+                track_title = (title_a.get_attribute("title") or "").strip()
 
-                # Try to grab visible title text as a fallback (often includes mix)
                 visible_title = title_a.text.strip() or track_title
 
-                # Try to read artists if present (safe fallback if class changes)
                 try:
                     artists_block = row.find_element(By.CSS_SELECTOR, 'div.cell.title .ArtistNames-sc-f2e950a1-0')
                     artists = artists_block.text.strip()
                 except Exception:
-                    # If the specific class changes, fallback to scanning the container
                     try:
                         container_text = row.find_element(By.CSS_SELECTOR, 'div.cell.title .container').text
-                        # The second line in your snippet contains artists
                         artists = "\n".join(container_text.split("\n")[1:]).strip()
-                        # If that’s messy, keep it empty—title is usually enough
                         if len(artists) > 200:
                             artists = ""
                     except Exception:
                         artists = ""
 
-                # --- Genre (from the bpm cell link title) ---
-                # EXACTLY as you pointed out: the <a> inside .cell.bpm has title="<GENRE NAME>"
                 genre_a = row.find_element(By.CSS_SELECTOR, 'div.cell.bpm a[title]')
-                genre = genre_a.get_attribute("title").strip()
+                genre = (genre_a.get_attribute("title") or "").strip()
 
-                # Build a candidate string for matching
                 candidate_string = (artists + " - " if artists else "") + visible_title
                 score = similarity(query, candidate_string)
 
@@ -105,7 +100,6 @@ def get_genre_from_beatport(query: str, timeout: int = 15):
         if not candidates:
             return None
 
-        # Pick the best match
         best = max(candidates, key=lambda x: x["score"])
         return {
             "genre": best["genre"],
